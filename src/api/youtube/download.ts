@@ -11,7 +11,7 @@ export const downloadYoutubeVideo = (
 ): Effect.Effect<void, Error, never> =>
   Effect.tryPromise({
     try: async () => {
-      const args = ["-S", "ext,res:1080", "-o", path, "--", link];
+      const args = ["-f", "bv*[height<=1080]+ba/b[height<=1080]", "--js-runtimes", "node" , "-o", path, "--", link];
 
       await new Promise<void>((resolve, reject) => {
         const child = spawn("yt-dlp", args, {
@@ -55,8 +55,10 @@ export const downloadYoutubeVideoWithProgress = (
   Effect.tryPromise({
     try: async () => {
       const args = [
-        "-S",
-        "ext,res:1080",
+        "--js-runtimes",
+        "node",
+        "-f",
+        "bv*[height<=1080]+ba/b[height<=1080]",
         "-o",
         path,
         "--quiet",
@@ -144,10 +146,17 @@ export const downloadYoutubeVideoWithProgress = (
           }
         };
 
+        let stderrText = "";
+
         child.stderr.setEncoding("utf8");
+
         child.stderr.on("data", (chunk) => {
-          // do not print to console; parse progress only
           const text = chunk as string;
+
+          // keep full stderr for debugging/errors
+          stderrText += text;
+
+          // still parse progress lines
           text.split(/[\r\n]+/).forEach(parseAndEmit);
         });
         child.stdout.setEncoding("utf8");
@@ -162,7 +171,11 @@ export const downloadYoutubeVideoWithProgress = (
             onProgress({ percent: 1 });
             resolve();
           } else {
-            reject(new Error(`yt-dlp download failed (code ${code})`));
+            reject(
+              new Error(
+                `yt-dlp download failed (code ${code})\n${stderrText}`
+              )
+            );
           }
         });
       });

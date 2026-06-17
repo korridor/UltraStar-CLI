@@ -21,13 +21,13 @@ Why it’s awesome:
 
 ### Install yt-dlp
 - macOS: `brew install yt-dlp` or `pipx install yt-dlp`
-- Windows: `winget install yt-dlp.yt-dlp` or `choco install yt-dlp` or `pipx install yt-dlp`
-- Linux: Use your package manager (e.g. `apt install yt-dlp`, `dnf install yt-dlp`, `pacman -S yt-dlp`) or `pipx install yt-dlp`
+- Windows: `winget install yt-dlp.yt-dlp` or `choco install yt-dlp` or `pipx install yt-dlp[default]`
+- Linux: Use your package manager (e.g. `apt install yt-dlp`, `dnf install yt-dlp`, `pacman -S yt-dlp`) or `pipx install yt-dlp[default]`. It is recommended to get the latest version of yt-dlp.
 
 If you need more options, see `https://github.com/yt-dlp/yt-dlp#installation`.
 
 ### Install a runtime
-- Node.js (for npm): We recommend installing via nvm: `https://github.com/nvm-sh/nvm`
+- Node.js (for npm and yt-dlp javascript functionalities): We recommend installing via nvm: `https://github.com/nvm-sh/nvm`
 - Bun (recommended): `curl -fsSL https://bun.sh/install | bash` or see `https://bun.sh`
 
 
