@@ -11,7 +11,7 @@ export const downloadYoutubeVideo = (
 ): Effect.Effect<void, Error, never> =>
   Effect.tryPromise({
     try: async () => {
-      const args = ["-f", "bv*[height<=1080]+ba/b[height<=1080]", "--js-runtimes", "node" , "-o", path, "--", link];
+      const args = ["-f", "mp4", "--js-runtimes", "node" , "-o", path, "--", link];
 
       await new Promise<void>((resolve, reject) => {
         const child = spawn("yt-dlp", args, {
@@ -58,7 +58,7 @@ export const downloadYoutubeVideoWithProgress = (
         "--js-runtimes",
         "node",
         "-f",
-        "bv*[height<=1080]+ba/b[height<=1080]",
+        "mp4",
         "-o",
         path,
         "--quiet",
