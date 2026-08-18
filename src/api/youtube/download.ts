@@ -1,6 +1,18 @@
 import { spawn } from "node:child_process";
 import { Effect } from "effect";
 
+const youtubeDownloadError = (error: unknown, link: string) => {
+  const message =
+    error instanceof Error ? error.message : "Failed to download youtube video";
+  const clickableLink = link.startsWith("//")
+    ? `https:${link}`
+    : /^https?:\/\//.test(link)
+      ? link
+      : `https://youtu.be/${link}`;
+
+  return new Error(`${message}\nDownload manually: ${clickableLink}`);
+};
+
 /**
  * Download a youtube video from direct link (watch URL or ID) and save to provided path.
  * Equivalent shell: yt-dlp -S "ext,res:1080" -o '${path}' -- ${link}
@@ -11,7 +23,16 @@ export const downloadYoutubeVideo = (
 ): Effect.Effect<void, Error, never> =>
   Effect.tryPromise({
     try: async () => {
-      const args = ["-f", "mp4", "--js-runtimes", "node" , "-o", path, "--", link];
+      const args = [
+        "-f",
+        "mp4",
+        "--js-runtimes",
+        "node",
+        "-o",
+        path,
+        "--",
+        link,
+      ];
 
       await new Promise<void>((resolve, reject) => {
         const child = spawn("yt-dlp", args, {
@@ -24,8 +45,7 @@ export const downloadYoutubeVideo = (
         });
       });
     },
-    catch: (e) =>
-      e instanceof Error ? e : new Error("Failed to download youtube video"),
+    catch: (e) => youtubeDownloadError(e, link),
   });
 
 export type YoutubeDownloadProgress = {
@@ -172,16 +192,11 @@ export const downloadYoutubeVideoWithProgress = (
             resolve();
           } else {
             reject(
-              new Error(
-                `yt-dlp download failed (code ${code})\n${stderrText}`
-              )
+              new Error(`yt-dlp download failed (code ${code})\n${stderrText}`),
             );
           }
         });
       });
     },
-    catch: (e) =>
-      e instanceof Error
-        ? e
-        : new Error("Failed to download youtube video with progress"),
+    catch: (e) => youtubeDownloadError(e, link),
   });
